@@ -1,62 +1,77 @@
-const calculator = document.querySelector('.calculator');
-const display = calculator.querySelector('.display input');
-const buttons = calculator.querySelectorAll('button');
+let currentResult = '0';
+let calculationOperator = '';
+let previousResult = '0';
 
-let firstOperand = null;
-let operator = null;
-let secondOperand = null;
-let result = null;
+function clearResult() {
+    currentResult = '0';
+    updateDisplay();
+}
 
-buttons.forEach(button => {
-  button
-buttons.forEach(button => {
-  button.addEventListener('click', () => {
-    const buttonText = button.textContent;
+function updateDisplay() {
+    const display = document.getElementById('result');
+    display.value = currentResult;
+}
 
-    if (buttonText === 'AC') {
-      // All Clear 버튼을 누른 경우
-      firstOperand = null;
-      operator = null;
-      secondOperand = null;
-      result = null;
-      display.value = '';
-    } else if (buttonText === '+/-') {
-      // 부호를 변경하는 버튼을 누른 경우
-      if (display.value.startsWith('-')) {
-        display.value = display.value.slice(1);
-      } else {
-        display.value = '-' + display.value;
-      }
-    } else if (buttonText === '%') {
-      // 퍼센트를 계산하는 버튼을 누른 경우
-      const value = parseFloat(display.value) / 100;
-      display.value = value.toString();
-    } else if (buttonText === '+' || buttonText === '-' || buttonText === '*' || buttonText === '/') {
-      // 연산자 버튼을 누른 경우
-      firstOperand = parseFloat(display.value);
-      operator = buttonText;
-      display.value = '';
-    } else if (buttonText === '=') {
-      // 등호 버튼을 누른 경우
-      secondOperand = parseFloat(display.value);
-      switch (operator) {
-        case '+':
-          result = firstOperand + secondOperand;
-          break;
-        case '-':
-          result = firstOperand - secondOperand;
-          break;
-        case '*':
-          result = firstOperand * secondOperand;
-          break;
-        case '/':
-          result = firstOperand / secondOperand;
-          break;
-      }
-      display.value = result.toString();
+function backspace() {
+    if (currentResult.length > 1) {
+        currentResult = currentResult.slice(0, -1);
     } else {
-      // 숫자 버튼을 누른 경우
-      display.value += buttonText;
+        currentResult = '0';
     }
-  });
-});
+    updateDisplay();
+}
+
+function appendNumber(number) {
+    if (currentResult === '0') {
+        currentResult = number;
+    } else {
+        currentResult += number;
+    }
+    updateDisplay();
+}
+
+function appendOperator(operator) {
+    if (calculationOperator !== '') {
+        calculate();
+    }
+    calculationOperator = operator;
+    previousResult = currentResult;
+    currentResult = '0';
+    updateDisplay();
+}
+
+function appendDecimal() {
+    if (!currentResult.includes('.')) {
+        currentResult += '.';
+    }
+    updateDisplay();
+}
+
+function calculate() {
+    const previous = parseFloat(previousResult);
+    const current = parseFloat(currentResult);
+    if (isNaN(previous) || isNaN(current)) {
+        return;
+    }
+    let result;
+    switch (calculationOperator) {
+        case '+':
+            result = previous + current;
+            break;
+        case '-':
+            result = previous - current;
+            break;
+        case '*':
+            result = previous * current;
+            break;
+        case '/':
+            result = previous / current;
+            break;
+        default:
+            return;
+    }
+    currentResult = result.toString();
+    calculationOperator = '';
+    previousResult = '0';
+    updateDisplay();
+}
